@@ -170,20 +170,20 @@ export default function Home() {
       </div>
 
       {achievementUnlocked && (
-  <div style={{
-    position: "fixed",
-    top: "20%",
-    left: "50%",
-    transform: "translateX(-50%)",
-    backgroundColor: "gold",
-    color: "black",
-    padding: "1rem 2rem",
-    borderRadius: "20px",
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    zIndex: 100,
-    boxShadow: "0 0 20px gold",
-    animation: "pulse 1s infinite"
+        <div style={{
+          position: "fixed",
+          top: "20%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "gold",
+          color: "black",
+          padding: "1rem 2rem",
+          borderRadius: "20px",
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          zIndex: 100,
+          boxShadow: "0 0 20px gold",
+          animation: "pulse 1s infinite"
   }}>
     🏆 Achievement Unlocked!
     <style>{`
