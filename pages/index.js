@@ -1,36 +1,43 @@
 import { useState, useEffect } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
-const initialData = [
-  { date: "01.05", mario: 0, sonic: 0 },
-  { date: "02.05", mario: 0, sonic: 0 },
-  { date: "03.05", mario: 0, sonic: 0 },
-  { date: "04.05", mario: 0, sonic: 0 },
-  { date: "05.05", mario: 0, sonic: 0 },
-  { date: "06.05", mario: 0, sonic: 0 },
-  { date: "07.05", mario: 0, sonic: 0 },
-];
+const createInitialData = () => {
+  const days = Array.from({ length: 31 }, (_, i) => ({
+    date: `${(i + 1).toString().padStart(2, "0")}.05`,
+    mario: { talktime: 0, afterwork: 0, resolution: 0, businesscase: 0 },
+    sonic: { talktime: 0, afterwork: 0, resolution: 0, businesscase: 0 },
+  }));
+  return days;
+};
 
-const coinSound = typeof Audio !== "undefined" ? new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-changing-tab-206.wav") : null;
+const calculateScore = (person) => {
+  return person.talktime + person.afterwork + person.resolution + person.businesscase;
+};
+
+const getMedal = (score) => {
+  if (score === 4) return "🥇 Gold";
+  if (score === 3) return "🥈 Silber";
+  if (score === 2) return "🥉 Bronze";
+  return "";
+};
 
 export default function Home() {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState(createInitialData());
   const [highscore, setHighscore] = useState({ character: "", score: 0 });
   const [gameOver, setGameOver] = useState(false);
 
-  const handleChange = (index, character, value) => {
+  const handleChange = (index, character, field, value) => {
     const newData = [...data];
-    newData[index][character] = parseInt(value) || 0;
+    newData[index][character][field] = parseInt(value) || 0;
     setData(newData);
-    if (coinSound) coinSound.play();
   };
 
   useEffect(() => {
-    const isGameOver = data.every(entry => entry.mario > 0 || entry.sonic > 0);
-    setGameOver(isGameOver);
+    const allFilled = data.every(day => calculateScore(day.mario) > 0 || calculateScore(day.sonic) > 0);
+    setGameOver(allFilled);
 
-    let marioTotal = data.reduce((sum, d) => sum + d.mario, 0);
-    let sonicTotal = data.reduce((sum, d) => sum + d.sonic, 0);
+    const marioTotal = data.reduce((sum, d) => sum + calculateScore(d.mario), 0);
+    const sonicTotal = data.reduce((sum, d) => sum + calculateScore(d.sonic), 0);
+
     if (marioTotal > sonicTotal) {
       setHighscore({ character: "Mario", score: marioTotal });
     } else if (sonicTotal > marioTotal) {
@@ -49,7 +56,7 @@ export default function Home() {
       </div>
 
       {gameOver && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "black", color: "red", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: "3rem" }}>
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "black", color: "red", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontSize: "3rem" }}>
           <p>GAME OVER</p>
           <p style={{ color: "limegreen", fontSize: "2rem" }}>Sieger: {highscore.character}</p>
           <p style={{ fontSize: "1.5rem" }}>Total Points: {highscore.score}</p>
@@ -58,35 +65,40 @@ export default function Home() {
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "2rem" }}>
         {data.map((entry, index) => (
-          <div key={index} style={{ border: "1px solid yellow", padding: "1rem", borderRadius: "1rem", width: "250px", backgroundColor: "#111" }}>
+          <div key={index} style={{ border: "1px solid yellow", padding: "1rem", borderRadius: "1rem", width: "280px", backgroundColor: "#111" }}>
             <h2>Day {entry.date}</h2>
-            <input
-              type="number"
-              placeholder="Mario Score"
-              value={entry.mario}
-              onChange={(e) => handleChange(index, "mario", e.target.value)}
-              style={{ width: "100%", marginBottom: "0.5rem", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
-            />
-            <input
-              type="number"
-              placeholder="Sonic Score"
-              value={entry.sonic}
-              onChange={(e) => handleChange(index, "sonic", e.target.value)}
-              style={{ width: "100%", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
-            />
+
+            <h3>Mario</h3>
+            {["talktime", "afterwork", "resolution", "businesscase"].map((field) => (
+              <input
+                key={field}
+                type="number"
+                min="0"
+                max="1"
+                placeholder={field}
+                value={entry.mario[field]}
+                onChange={(e) => handleChange(index, "mario", field, e.target.value)}
+                style={{ width: "100%", marginBottom: "0.25rem", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
+              />
+            ))}
+            <div>Mario Punkte: {calculateScore(entry.mario)} {getMedal(calculateScore(entry.mario))}</div>
+
+            <h3 style={{ marginTop: "1rem" }}>Sonic</h3>
+            {["talktime", "afterwork", "resolution", "businesscase"].map((field) => (
+              <input
+                key={field}
+                type="number"
+                min="0"
+                max="1"
+                placeholder={field}
+                value={entry.sonic[field]}
+                onChange={(e) => handleChange(index, "sonic", field, e.target.value)}
+                style={{ width: "100%", marginBottom: "0.25rem", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
+              />
+            ))}
+            <div>Sonic Punkte: {calculateScore(entry.sonic)} {getMedal(calculateScore(entry.sonic))}</div>
           </div>
         ))}
-      </div>
-
-      <div style={{ marginTop: "3rem" }}>
-        <BarChart width={600} height={300} data={data} style={{ margin: "0 auto" }}>
-          <XAxis dataKey="date" stroke="yellow" />
-          <YAxis stroke="yellow" />
-          <Tooltip contentStyle={{ backgroundColor: "#333", color: "lime" }} />
-          <Legend />
-          <Bar dataKey="mario" name="Mario" fill="red" />
-          <Bar dataKey="sonic" name="Sonic" fill="blue" />
-        </BarChart>
       </div>
     </div>
   );
