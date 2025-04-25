@@ -39,6 +39,8 @@ export default function Home() {
   const [currentDay, setCurrentDay] = useState(0);
   const [highscore, setHighscore] = useState({ character: "", score: 0 });
   const [gameOver, setGameOver] = useState(false);
+  const [achievementUnlocked, setAchievementUnlocked] = useState(false);
+
 
   const handleChange = (character, field, value) => {
     const newData = [...data];
@@ -64,28 +66,38 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const allFilled = data.every(day =>
-      ["mario", "sonic"].some(char =>
-        day[char].talktime !== "" || day[char].afterwork !== "" || day[char].businesscase !== "" || day[char].contactcode !== ""
-      )
-    );
-    setGameOver(allFilled);
+useEffect(() => {
+  const allFilled = data.every(day =>
+    ["mario", "sonic"].some(char =>
+      day[char].talktime !== "" || day[char].afterwork !== "" || day[char].businesscase !== "" || day[char].contactcode !== ""
+    )
+  );
+  setGameOver(allFilled);
 
-    const marioTotal = data.reduce((sum, d) => sum + calculateTotal(d.mario), 0);
-    const sonicTotal = data.reduce((sum, d) => sum + calculateTotal(d.sonic), 0);
+  const marioTotal = data.reduce((sum, d) => sum + calculateTotal(d.mario), 0);
+  const sonicTotal = data.reduce((sum, d) => sum + calculateTotal(d.sonic), 0);
 
-    if (marioTotal > sonicTotal) {
-      setHighscore({ character: "Mario", score: marioTotal });
-    } else if (sonicTotal > marioTotal) {
-      setHighscore({ character: "Sonic", score: sonicTotal });
-    } else {
-      setHighscore({ character: "Unentschieden", score: marioTotal });
-    }
+  if (marioTotal > sonicTotal) {
+    setHighscore({ character: "Mario", score: marioTotal });
+  } else if (sonicTotal > marioTotal) {
+    setHighscore({ character: "Sonic", score: sonicTotal });
+  } else {
+    setHighscore({ character: "Unentschieden", score: marioTotal });
+  }
 
-    if (allFilled && winSound) {
-      winSound.play();
-    }
-  }, [data]);
+  // 🎯 BONUS: Achievement wenn volle Punkte
+  const todayMario = calculateTotal(data[currentDay]?.mario || {});
+  const todaySonic = calculateTotal(data[currentDay]?.sonic || {});
+  if (todayMario === 8 || todaySonic === 8) {
+    setAchievementUnlocked(true);
+    setTimeout(() => setAchievementUnlocked(false), 3000);
+  }
+
+  if (allFilled && winSound) {
+    winSound.play();
+  }
+}, [data, currentDay]);
+
 
   const medalData = [
     { medal: "Gold", Mario: data.filter(d => getMedal(calculateTotal(d.mario)) === "🥇 Gold").length, Sonic: data.filter(d => getMedal(calculateTotal(d.sonic)) === "🥇 Gold").length },
