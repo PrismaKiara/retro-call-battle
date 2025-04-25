@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import "../styles.css"; 
+import "../styles.css"; // <-- WICHTIG: Dein Arcade-Style!
 
 const createInitialData = () => {
   return Array.from({ length: 31 }, (_, i) => ({
@@ -85,21 +85,25 @@ export default function Home() {
 
   return (
     <div>
+      {/* Arcade Header */}
       <header>
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neon_Game_Controller.svg" alt="Arcade Logo" />
         <h1>🎮 Retro Call Battle Arena</h1>
       </header>
 
+      {/* Highscore Leader */}
       <div className="highscore">
         Highscore Leader: {highscore.character} mit {highscore.score} Punkten
       </div>
 
+      {/* Tages-Navigation */}
       <div className="navigation">
         <button onClick={prevDay} disabled={currentDay === 0}>⬅️ Zurück</button>
         <span style={{ fontSize: "1.2rem" }}>Tag {current.date}</span>
         <button onClick={nextDay} disabled={currentDay === data.length - 1}>Weiter ➡️</button>
       </div>
 
+      {/* Tages-Eingabe */}
       <div className="battle-card">
         <h2>Mario</h2>
         {["talktime", "afterwork", "resolution", "businesscase"].map((field) => (
@@ -130,6 +134,7 @@ export default function Home() {
         <div>Sonic Punkte: {calculateScore(current.sonic)} {getMedal(calculateScore(current.sonic))}</div>
       </div>
 
+      {/* Medaillen-Statistik */}
       <div className="chart-container">
         <h2 style={{ color: "yellow", textAlign: "center", fontSize: "1.5rem", marginBottom: "1rem" }}>🏅 Medaillen-Statistik</h2>
         <BarChart width={600} height={300} data={medalData} style={{ margin: "0 auto" }}>
@@ -142,6 +147,7 @@ export default function Home() {
         </BarChart>
       </div>
 
+      {/* Game Over Screen */}
       {gameOver && (
         <div className="gameover">
           <p>🎉 GAME OVER 🎉</p>
