@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import "../styles.css";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import "../styles.css";
 
 const createInitialData = () => {
   return Array.from({ length: 31 }, (_, i) => ({
@@ -88,12 +88,12 @@ export default function Home() {
   const current = data[currentDay];
 
   return (
+    <div>
+      <header>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neon_Game_Controller.svg" alt="Arcade Logo" />
+        <h1>🎮 Retro Call Battle Arena</h1>
+      </header>
     <div style={{ fontFamily: "monospace", backgroundColor: "black", color: "limegreen", minHeight: "100vh", padding: "2rem" }}>
-  <header>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neon_Game_Controller.svg" alt="Arcade Logo" />
-  <h1>🎮 Retro Call Battle Arena</h1>
-</header>
-
       <h1 style={{ fontSize: "2rem", textAlign: "center", color: "yellow" }}>🎮 Retro Call Battle: Mario vs Sonic</h1>
 
       <div style={{ margin: "1rem 0", backgroundColor: "yellow", color: "black", textAlign: "center", padding: "1rem", borderRadius: "1rem" }}>
