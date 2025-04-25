@@ -1,10 +1,12 @@
 body {
-  background: linear-gradient(135deg, #1f1c2c, #928dab);
-  color: white;
+  margin: 0;
   font-family: sans-serif;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  color: #ffffff;
   min-height: 100vh;
 }
-
 
 @keyframes gradientShift {
   0% {background-position: 0% 50%;}
@@ -80,14 +82,36 @@ input {
   font-size: 3rem;
   z-index: 50;
   text-align: center;
-  animation: flash 1s infinite;
 }
 
-@keyframes flash {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
+.firework-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url(https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif);
+  background-size: cover;
+  opacity: 0.3;
+  z-index: -1;
 }
+
+.achievement-popup {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: gold;
+  color: black;
+  padding: 1rem 2rem;
+  border-radius: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 100;
+  box-shadow: 0 0 20px gold;
+  animation: pulseAnimation 1s infinite;
+}
+
 @keyframes pulseAnimation {
   0% { transform: translateX(-50%) scale(1); }
   50% { transform: translateX(-50%) scale(1.1); }
