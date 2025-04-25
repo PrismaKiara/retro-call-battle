@@ -88,3 +88,8 @@ input {
   50% { opacity: 0.3; }
   100% { opacity: 1; }
 }
+@keyframes pulseAnimation {
+  0% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.1); }
+  100% { transform: translateX(-50%) scale(1); }
+}
