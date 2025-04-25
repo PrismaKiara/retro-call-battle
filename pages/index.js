@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import "../styles.css"; // <-- WICHTIG: Dein Arcade-Style!
 
 const createInitialData = () => {
   return Array.from({ length: 31 }, (_, i) => ({
