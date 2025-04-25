@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
-import "../styles.css";
+import "../styles.css"; // <-- WICHTIG: Dein Arcade-Style!
 
 const createInitialData = () => {
   return Array.from({ length: 31 }, (_, i) => ({
@@ -21,10 +21,8 @@ const getMedal = (score) => {
 };
 
 const countMedals = (data, character) => {
-  let gold = 0,
-    silver = 0,
-    bronze = 0;
-  data.forEach((day) => {
+  let gold = 0, silver = 0, bronze = 0;
+  data.forEach(day => {
     const score = calculateScore(day[character]);
     if (score === 4) gold++;
     else if (score === 3) silver++;
@@ -40,7 +38,6 @@ export default function Home() {
   const [currentDay, setCurrentDay] = useState(0);
   const [highscore, setHighscore] = useState({ character: "", score: 0 });
   const [gameOver, setGameOver] = useState(false);
-  const [showWinAnimation, setShowWinAnimation] = useState(false);
 
   const handleChange = (character, field, value) => {
     const newData = [...data];
@@ -57,7 +54,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const allFilled = data.every((day) => calculateScore(day.mario) > 0 || calculateScore(day.sonic) > 0);
+    const allFilled = data.every(day => calculateScore(day.mario) > 0 || calculateScore(day.sonic) > 0);
     setGameOver(allFilled);
 
     const marioTotal = data.reduce((sum, d) => sum + calculateScore(d.mario), 0);
@@ -73,7 +70,6 @@ export default function Home() {
 
     if (allFilled && winSound) {
       winSound.play();
-      setShowWinAnimation(true);
     }
   }, [data]);
 
@@ -89,24 +85,26 @@ export default function Home() {
 
   return (
     <div>
+      {/* Arcade Header */}
       <header>
         <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Neon_Game_Controller.svg" alt="Arcade Logo" />
         <h1>🎮 Retro Call Battle Arena</h1>
       </header>
-    <div style={{ fontFamily: "monospace", backgroundColor: "black", color: "limegreen", minHeight: "100vh", padding: "2rem" }}>
-      <h1 style={{ fontSize: "2rem", textAlign: "center", color: "yellow" }}>🎮 Retro Call Battle: Mario vs Sonic</h1>
 
-      <div style={{ margin: "1rem 0", backgroundColor: "yellow", color: "black", textAlign: "center", padding: "1rem", borderRadius: "1rem" }}>
+      {/* Highscore Leader */}
+      <div className="highscore">
         Highscore Leader: {highscore.character} mit {highscore.score} Punkten
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginBottom: "1rem" }}>
+      {/* Tages-Navigation */}
+      <div className="navigation">
         <button onClick={prevDay} disabled={currentDay === 0}>⬅️ Zurück</button>
         <span style={{ fontSize: "1.2rem" }}>Tag {current.date}</span>
         <button onClick={nextDay} disabled={currentDay === data.length - 1}>Weiter ➡️</button>
       </div>
 
-      <div style={{ border: "1px solid yellow", padding: "1rem", borderRadius: "1rem", backgroundColor: "#111", maxWidth: "400px", margin: "0 auto" }}>
+      {/* Tages-Eingabe */}
+      <div className="battle-card">
         <h2>Mario</h2>
         {["talktime", "afterwork", "resolution", "businesscase"].map((field) => (
           <input
@@ -117,7 +115,6 @@ export default function Home() {
             placeholder={field}
             value={current.mario[field]}
             onChange={(e) => handleChange("mario", field, e.target.value)}
-            style={{ width: "100%", marginBottom: "0.25rem", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
           />
         ))}
         <div>Mario Punkte: {calculateScore(current.mario)} {getMedal(calculateScore(current.mario))}</div>
@@ -132,13 +129,13 @@ export default function Home() {
             placeholder={field}
             value={current.sonic[field]}
             onChange={(e) => handleChange("sonic", field, e.target.value)}
-            style={{ width: "100%", marginBottom: "0.25rem", backgroundColor: "black", color: "limegreen", border: "1px solid limegreen" }}
           />
         ))}
         <div>Sonic Punkte: {calculateScore(current.sonic)} {getMedal(calculateScore(current.sonic))}</div>
       </div>
 
-      <div style={{ marginTop: "3rem" }}>
+      {/* Medaillen-Statistik */}
+      <div className="chart-container">
         <h2 style={{ color: "yellow", textAlign: "center", fontSize: "1.5rem", marginBottom: "1rem" }}>🏅 Medaillen-Statistik</h2>
         <BarChart width={600} height={300} data={medalData} style={{ margin: "0 auto" }}>
           <XAxis dataKey="medal" stroke="yellow" />
@@ -150,19 +147,11 @@ export default function Home() {
         </BarChart>
       </div>
 
+      {/* Game Over Screen */}
       {gameOver && (
-        <div style={{
-          position: "fixed", inset: 0, backgroundColor: "black",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          color: "red", fontSize: "3rem", zIndex: 50, textAlign: "center"
-        }}>
-          <p style={{ animation: "flash 1s infinite" }}>🎉 GAME OVER 🎉</p>
+        <div className="gameover">
+          <p>🎉 GAME OVER 🎉</p>
           <p style={{ color: "limegreen", fontSize: "2rem" }}>🏆 Sieger: {highscore.character}</p>
-          <style>{`@keyframes flash {
-              0% { opacity: 1; }
-              50% { opacity: 0.3; }
-              100% { opacity: 1; }
-          }`}</style>
         </div>
       )}
     </div>
