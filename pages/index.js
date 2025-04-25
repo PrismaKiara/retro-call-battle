@@ -203,6 +203,15 @@ useEffect(() => {
         <div className="gameover">
           <p>🎉 GAME OVER 🎉</p>
           <p style={{ color: "limegreen", fontSize: "2rem" }}>🏆 Sieger: {highscore.character}</p>
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, width: "100%", height: "100%",
+          backgroundImage: "url(https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif)",
+          backgroundSize: "cover",
+          opacity: 0.3,
+          zIndex: -1
+}} />
+
         </div>
       )}
     </div>
