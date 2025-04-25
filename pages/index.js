@@ -11,7 +11,6 @@ const createInitialData = () => {
 
 const calculatePoints = (value, target, type = "lower") => {
   if (value === "") return 0;
-
   if (type === "lower") {
     if (value <= target) return 2;
     if (value <= target * 1.1) return 1;
@@ -83,7 +82,6 @@ export default function Home() {
       setHighscore({ character: "Unentschieden", score: marioTotal });
     }
 
-    // 🏆 Achievement wenn volle Punkte an einem Tag
     const todayMario = calculateTotal(data[currentDay]?.mario || {});
     const todaySonic = calculateTotal(data[currentDay]?.sonic || {});
     if (todayMario === 8 || todaySonic === 8) {
@@ -170,21 +168,18 @@ export default function Home() {
       </div>
 
       {achievementUnlocked && (
-  <div style={{
-    position: "fixed",
-    top: "20%",
-    left: "50%",
-    transform: "translateX(-50%)",
-    backgroundColor: "gold",
-    color: "black",
-    padding: "1rem 2rem",
-    borderRadius: "20px",
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    zIndex: 100,
-    boxShadow: "0 0 20px gold",
-    animation: "pulseAnimation 1s infinite",
-  }}>
-    🏆 Achievement Unlocked!
-  </div>
-)}
+        <div className="achievement-popup">
+          🏆 Achievement Unlocked!
+        </div>
+      )}
+
+      {gameOver && (
+        <div className="gameover">
+          <div className="firework-background" />
+          <p>🎉 GAME OVER 🎉</p>
+          <p style={{ color: "limegreen", fontSize: "2rem" }}>🏆 Sieger: {highscore.character}</p>
+        </div>
+      )}
+    </div>
+  );
+}
