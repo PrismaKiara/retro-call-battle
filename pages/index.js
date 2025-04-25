@@ -41,7 +41,6 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [achievementUnlocked, setAchievementUnlocked] = useState(false);
 
-
   const handleChange = (character, field, value) => {
     const newData = [...data];
     newData[currentDay][character][field] = value;
@@ -66,38 +65,36 @@ export default function Home() {
   };
 
   useEffect(() => {
-useEffect(() => {
-  const allFilled = data.every(day =>
-    ["mario", "sonic"].some(char =>
-      day[char].talktime !== "" || day[char].afterwork !== "" || day[char].businesscase !== "" || day[char].contactcode !== ""
-    )
-  );
-  setGameOver(allFilled);
+    const allFilled = data.every(day =>
+      ["mario", "sonic"].some(char =>
+        day[char].talktime !== "" || day[char].afterwork !== "" || day[char].businesscase !== "" || day[char].contactcode !== ""
+      )
+    );
+    setGameOver(allFilled);
 
-  const marioTotal = data.reduce((sum, d) => sum + calculateTotal(d.mario), 0);
-  const sonicTotal = data.reduce((sum, d) => sum + calculateTotal(d.sonic), 0);
+    const marioTotal = data.reduce((sum, d) => sum + calculateTotal(d.mario), 0);
+    const sonicTotal = data.reduce((sum, d) => sum + calculateTotal(d.sonic), 0);
 
-  if (marioTotal > sonicTotal) {
-    setHighscore({ character: "Mario", score: marioTotal });
-  } else if (sonicTotal > marioTotal) {
-    setHighscore({ character: "Sonic", score: sonicTotal });
-  } else {
-    setHighscore({ character: "Unentschieden", score: marioTotal });
-  }
+    if (marioTotal > sonicTotal) {
+      setHighscore({ character: "Mario", score: marioTotal });
+    } else if (sonicTotal > marioTotal) {
+      setHighscore({ character: "Sonic", score: sonicTotal });
+    } else {
+      setHighscore({ character: "Unentschieden", score: marioTotal });
+    }
 
-  // 🎯 BONUS: Achievement wenn volle Punkte
-  const todayMario = calculateTotal(data[currentDay]?.mario || {});
-  const todaySonic = calculateTotal(data[currentDay]?.sonic || {});
-  if (todayMario === 8 || todaySonic === 8) {
-    setAchievementUnlocked(true);
-    setTimeout(() => setAchievementUnlocked(false), 3000);
-  }
+    // 🏆 Achievement wenn volle Punkte an einem Tag
+    const todayMario = calculateTotal(data[currentDay]?.mario || {});
+    const todaySonic = calculateTotal(data[currentDay]?.sonic || {});
+    if (todayMario === 8 || todaySonic === 8) {
+      setAchievementUnlocked(true);
+      setTimeout(() => setAchievementUnlocked(false), 3000);
+    }
 
-  if (allFilled && winSound) {
-    winSound.play();
-  }
-}, [data, currentDay]);
-
+    if (allFilled && winSound) {
+      winSound.play();
+    }
+  }, [data, currentDay]);
 
   const medalData = [
     { medal: "Gold", Mario: data.filter(d => getMedal(calculateTotal(d.mario)) === "🥇 Gold").length, Sonic: data.filter(d => getMedal(calculateTotal(d.sonic)) === "🥇 Gold").length },
@@ -171,49 +168,7 @@ useEffect(() => {
           <Bar dataKey="Sonic" fill="blue" />
         </BarChart>
       </div>
-{achievementUnlocked && (
-  <div style={{
-    position: "fixed",
-    top: "20%",
-    left: "50%",
-    transform: "translateX(-50%)",
-    backgroundColor: "gold",
-    color: "black",
-    padding: "1rem 2rem",
-    borderRadius: "20px",
-    fontSize: "1.5rem",
-    fontWeight: "bold",
-    zIndex: 100,
-    boxShadow: "0 0 20px gold",
-    animation: "pulse 1s infinite"
-  }}>
-    🏆 Achievement Unlocked!
-  </div>
-)}
 
-<style>{`
-@keyframes pulse {
-  0% { transform: translateX(-50%) scale(1); }
-  50% { transform: translateX(-50%) scale(1.1); }
-  100% { transform: translateX(-50%) scale(1); }
-}
-`}</style>
-
-      {gameOver && (
-        <div className="gameover">
-          <p>🎉 GAME OVER 🎉</p>
-          <p style={{ color: "limegreen", fontSize: "2rem" }}>🏆 Sieger: {highscore.character}</p>
-        <div style={{
-          position: "absolute",
-          top: 0, left: 0, width: "100%", height: "100%",
-          backgroundImage: "url(https://media.giphy.com/media/l0MYB8Ory7Hqefo9a/giphy.gif)",
-          backgroundSize: "cover",
-          opacity: 0.3,
-          zIndex: -1
-}} />
-
-        </div>
-      )}
-    </div>
-  );
-}
+      {achievementUnlocked && (
+        <>
+          <div
