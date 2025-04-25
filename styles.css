@@ -1,12 +1,10 @@
 body {
-  margin: 0;
-  font-family: sans-serif;
   background: linear-gradient(135deg, #1f1c2c, #928dab);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  color: #ffffff;
+  color: white;
+  font-family: sans-serif;
   min-height: 100vh;
 }
+
 
 @keyframes gradientShift {
   0% {background-position: 0% 50%;}
