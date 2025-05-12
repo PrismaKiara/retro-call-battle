@@ -29,26 +29,62 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: '2rem', color: 'white' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleLogin}>
+    <div style={{
+      backgroundColor: '#0f0f0f',
+      color: '#00ffcc',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'Press Start 2P, sans-serif',
+      padding: '2rem',
+      textAlign: 'center'
+    }}>
+      <h1 style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>🎮 Retro Call Battle Login</h1>
+      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '300px' }}>
         <input
           type="email"
-          placeholder="Email"
+          placeholder="📧 Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        /><br />
+          style={{
+            padding: '0.75rem',
+            borderRadius: '5px',
+            border: '2px solid #00ffcc',
+            backgroundColor: '#1f1f1f',
+            color: '#00ffcc',
+            fontFamily: 'inherit'
+          }}
+        />
         <input
           type="password"
-          placeholder="Passwort"
+          placeholder="🔑 Passwort"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-        /><br />
-        <button type="submit">Login</button>
+          style={{
+            padding: '0.75rem',
+            borderRadius: '5px',
+            border: '2px solid #00ffcc',
+            backgroundColor: '#1f1f1f',
+            color: '#00ffcc',
+            fontFamily: 'inherit'
+          }}
+        />
+        <button type="submit" style={{
+          padding: '0.75rem',
+          backgroundColor: '#00ffcc',
+          color: '#0f0f0f',
+          border: 'none',
+          borderRadius: '5px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          fontFamily: 'inherit'
+        }}>🎮 Einloggen</button>
       </form>
-      {error && <p style={{ color: 'salmon' }}>{error}</p>}
+      {error && <p style={{ color: 'salmon', marginTop: '1rem' }}>{error}</p>}
     </div>
   );
 }
