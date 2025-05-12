@@ -1,4 +1,12 @@
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Home() {
-  return <h1>Willkommen zur Retro Call Battle Arena!</h1>;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/login');
+  }, []);
+
+  return null;
 }
