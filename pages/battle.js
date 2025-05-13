@@ -11,6 +11,7 @@ export default function Battle() {
   const [points, setPoints] = useState(null);
   const [entries, setEntries] = useState([]);
   const [user, setUser] = useState(null);
+  const [showAchievement, setShowAchievement] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -18,6 +19,13 @@ export default function Battle() {
       if (data.user) loadEntries(data.user.id);
     });
   }, []);
+
+  const getMedal = (pts) => {
+    if (pts === 8) return '🏆';
+    if (pts >= 6) return '🥈';
+    if (pts >= 4) return '🥉';
+    return '❌';
+  };
 
   const calculatePoints = () => {
     let total = 0;
@@ -38,13 +46,20 @@ export default function Battle() {
     if (cc >= 85) total += 2;
     else if (cc >= 76.5) total += 1;
 
-    setPoints(total);
     return total;
   };
 
   const saveEntry = async () => {
     const pts = calculatePoints();
+    setPoints(pts);
     const today = format(new Date(), 'yyyy-MM-dd');
+
+    if (pts === 8) {
+      setShowAchievement(true);
+      const audio = new Audio('/achievement.mp3');
+      audio.play();
+      setTimeout(() => setShowAchievement(false), 3000);
+    }
 
     const { error } = await supabase.from('scores').upsert([{
       user_id: user.id,
@@ -82,8 +97,28 @@ export default function Battle() {
       fontFamily: 'Press Start 2P, monospace',
       minHeight: '100vh',
       padding: '2rem',
-      textAlign: 'center'
+      textAlign: 'center',
+      position: 'relative'
     }}>
+      {showAchievement && (
+        <div style={{
+          position: 'absolute',
+          top: '40%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: '#222',
+          color: 'gold',
+          padding: '2rem',
+          border: '4px dashed gold',
+          borderRadius: '12px',
+          zIndex: 1000,
+          fontSize: '1.2rem',
+          animation: 'pop 0.5s ease'
+        }}>
+          🏆 Achievement Unlocked! <br />Perfect Day!
+        </div>
+      )}
+
       <h1>🎯 Tages-Performance</h1>
 
       <form onSubmit={(e) => { e.preventDefault(); saveEntry(); }} style={{
@@ -112,7 +147,7 @@ export default function Battle() {
 
       {points !== null && (
         <div style={{ marginTop: '2rem', fontSize: '1rem' }}>
-          <p>🏆 Heute erreicht: <strong>{points} Punkte</strong></p>
+          <p>🏆 Heute erreicht: <strong>{points} Punkte</strong> {getMedal(points)}</p>
         </div>
       )}
 
@@ -134,6 +169,7 @@ export default function Battle() {
                 <th>Quote</th>
                 <th>Code</th>
                 <th>Punkte</th>
+                <th>Medaillen</th>
               </tr>
             </thead>
             <tbody>
@@ -145,6 +181,7 @@ export default function Battle() {
                   <td>{e.businesscase}%</td>
                   <td>{e.contactcode}%</td>
                   <td>{e.points}</td>
+                  <td>{getMedal(e.points)}</td>
                 </tr>
               ))}
             </tbody>
