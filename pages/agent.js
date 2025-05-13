@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
+import { format, addDays, isWeekend } from 'date-fns';
 import { supabase } from '../lib/supabaseClient';
 
 export default function AgentLanding() {
@@ -8,6 +8,7 @@ export default function AgentLanding() {
   const [today, setToday] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [displayDate, setDisplayDate] = useState('');
   const [status, setStatus] = useState(null);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -20,6 +21,7 @@ export default function AgentLanding() {
 
       if (usr) {
         checkEntry(usr.id);
+        loadProgress(usr.id);
       }
     });
   }, []);
@@ -43,6 +45,26 @@ export default function AgentLanding() {
     }
   };
 
+  const loadProgress = async (userId) => {
+    const start = new Date();
+    const allDays = [];
+    let date = new Date(start);
+    while (allDays.length < 30) {
+      if (!isWeekend(date)) {
+        allDays.push(format(date, 'yyyy-MM-dd'));
+      }
+      date = addDays(date, 1);
+    }
+
+    const { data } = await supabase
+      .from('scores')
+      .select('date')
+      .eq('user_id', userId);
+
+    const completed = data?.filter(entry => allDays.includes(entry.date)).length || 0;
+    setProgress(Math.round((completed / allDays.length) * 100));
+  };
+
   return (
     <div style={{
       backgroundColor: '#0f0f0f',
@@ -63,6 +85,7 @@ export default function AgentLanding() {
       <p style={{ marginBottom: '1.5rem', fontSize: '0.7rem' }}>
         Status: {status || '⏳ Lade...'}
       </p>
+
       <a href="/battle">
         <button style={{
           padding: '0.6rem 1.2rem',
@@ -71,10 +94,31 @@ export default function AgentLanding() {
           border: 'none',
           borderRadius: '5px',
           fontSize: '0.7rem',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          marginBottom: '1rem'
         }}>
           ➡️ Tageswerte eintragen
         </button>
+      </a>
+
+      <div style={{ width: '80%', marginTop: '1rem' }}>
+        <p style={{ fontSize: '0.7rem' }}>📊 Fortschritt: {progress}%</p>
+        <div style={{
+          height: '10px',
+          backgroundColor: '#333',
+          borderRadius: '5px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            width: `${progress}%`,
+            height: '100%',
+            backgroundColor: '#00ffff'
+          }}></div>
+        </div>
+      </div>
+
+      <a href="/calendar" style={{ marginTop: '1.5rem', fontSize: '0.7rem', textDecoration: 'underline', color: '#00ffff' }}>
+        📅 Zum Monatskalender
       </a>
     </div>
   );
