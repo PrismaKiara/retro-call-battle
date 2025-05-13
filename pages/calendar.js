@@ -1,103 +1,36 @@
 
-import { useEffect, useState } from 'react';
-import { format, addDays, isWeekend } from 'date-fns';
-import { supabase } from '../lib/supabaseClient';
+import React, { useEffect, useState } from 'react';
+import { format, subDays, addDays, startOfToday } from 'date-fns';
 
-export default function Calendar() {
-  const [user, setUser] = useState(null);
-  const [days, setDays] = useState([]);
-  const [entries, setEntries] = useState([]);
-  const [editDate, setEditDate] = useState('');
+const Calendar = () => {
+  const startDate = startOfToday();
+  const [currentDate, setCurrentDate] = useState(startDate);
+  const days = Array.from({ length: 30 }, (_, i) => subDays(startDate, i)).reverse();
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      if (data.user) {
-        loadEntries(data.user.id);
-      }
-    });
-
-    // Erlaube nur Vortag (Werktag)
-    const today = new Date();
-    let prev = addDays(today, -1);
-    while (isWeekend(prev)) prev = addDays(prev, -1);
-    setEditDate(format(prev, 'yyyy-MM-dd'));
-
-  }, []);
-
-  const loadEntries = async (userId) => {
-    const { data } = await supabase
-      .from('scores')
-      .select('date, points')
-      .eq('user_id', userId)
-      .order('date', { ascending: true });
-
-    setEntries(data || []);
-  };
-
-  useEffect(() => {
-    const start = new Date();
-    const result = [];
-    let day = new Date(start);
-    while (result.length < 30) {
-      if (!isWeekend(day)) {
-        result.push({
-          date: format(day, 'yyyy-MM-dd'),
-          label: format(day, 'EEE dd.MM'),
-          isToday: format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'),
-        });
-      }
-      day = addDays(day, 1);
-    }
-    setDays(result);
-  }, []);
-
-  const getStatus = (date) => {
-    const entry = entries.find(e => e.date === date);
-    if (!entry) return '🔲 Offen';
-    if (entry.points === 8) return '🏆 Perfekt';
-    if (entry.points >= 6) return '🥈 Gut';
-    if (entry.points >= 4) return '🥉 Ok';
-    return '❌ Schwach';
+  const isYesterday = (date) => {
+    const yesterday = subDays(startOfToday(), 1);
+    return format(date, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd');
   };
 
   return (
-    <div style={{
-      backgroundColor: '#f0f8ff',
-      color: '#003366',
-      minHeight: '100vh',
-      padding: '2rem',
-      fontFamily: 'Press Start 2P, monospace'
-    }}>
-      <h1 style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>🗓️ Deine Battle-Tage (Mo–Fr)</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
-        {days.map((day, i) => (
-          <div key={i} style={{
-            border: '2px solid #00ffff',
-            borderRadius: '8px',
+    <div style={{ backgroundColor: '#1c1b22', color: '#00fff7', fontFamily: 'monospace', padding: '2rem' }}>
+      <h1 style={{ color: '#ff70a6', textAlign: 'center' }}>📅 Retro Call Battle Kalender</h1>
+      <ul>
+        {days.map((date) => (
+          <li key={date} style={{
+            marginBottom: '1rem',
             padding: '1rem',
-            backgroundColor: day.isToday ? '#002222' : '#111',
-            boxShadow: day.isToday ? '0 0 10px #00ffff' : 'none'
+            backgroundColor: '#2d2c33',
+            border: isYesterday(date) ? '2px solid #ff70a6' : '1px solid #00fff7',
+            borderRadius: '8px',
+            fontSize: '1.2rem'
           }}>
-            <strong>{day.label}</strong>
-            <p style={{ margin: '0.5rem 0' }}>{getStatus(day.date)}</p>
-            <a href={day.date === editDate ? `/battle?date=${day.date}` : '#'} style={{ pointerEvents: day.date === editDate ? 'auto' : 'none' }}>
-              <button style={{
-                marginTop: '0.5rem',
-                padding: '0.4rem 0.8rem',
-                fontSize: '0.8rem',
-                backgroundColor: day.date === editDate ? '#00ffff' : '#555',
-                color: '#111',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: day.date === editDate ? 'pointer' : 'not-allowed'
-              }}>
-                {day.date === editDate ? 'Eintragen' : '🔒 Gesperrt'}
-              </button>
-            </a>
-          </div>
+            {format(date, 'EEEE, dd.MM.yyyy')} - {isYesterday(date) ? '✍️ Bearbeitbar' : '🔒 Gesperrt'}
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
-}
+};
+
+export default Calendar;
