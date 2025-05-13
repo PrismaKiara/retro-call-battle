@@ -7,6 +7,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.6",
     "date-fns": "^3.3.1",
     "next": "13.4.4",
     "react": "18.2.0",
