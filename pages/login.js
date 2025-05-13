@@ -30,7 +30,7 @@ export default function LoginPage() {
       if (role === 'admin') {
         router.push('/admin');
       } else if (role === 'mario' || role === 'sonic') {
-        router.push('/battle');
+        router.push('/agent');
       } else {
         setError('Unbekannte Rolle – bitte Admin kontaktieren.');
       }
