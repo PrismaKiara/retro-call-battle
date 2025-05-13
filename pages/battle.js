@@ -1,30 +1,56 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { format } from 'date-fns';
+import { format, parseISO, subDays, isWeekend } from 'date-fns';
+import { useRouter } from 'next/router';
 
 export default function Battle() {
+  const router = useRouter();
+  const queryDate = router.query.date;
+  const [targetDate, setTargetDate] = useState('');
+  const [user, setUser] = useState(null);
+  const [editable, setEditable] = useState(false);
+  const [existing, setExisting] = useState(null);
+  const [points, setPoints] = useState(null);
+
   const [talktime, setTalktime] = useState('');
   const [aht, setAht] = useState('');
   const [businesscase, setBusinesscase] = useState('');
   const [contactcode, setContactcode] = useState('');
-  const [points, setPoints] = useState(null);
-  const [entries, setEntries] = useState([]);
-  const [user, setUser] = useState(null);
-  const [showAchievement, setShowAchievement] = useState(false);
 
   useEffect(() => {
+    const today = new Date();
+    let previous = subDays(today, 1);
+    while (isWeekend(previous)) previous = subDays(previous, 1);
+    const previousStr = format(previous, 'yyyy-MM-dd');
+    setTargetDate(queryDate || previousStr);
+
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
-      if (data.user) loadEntries(data.user.id);
+      if (data.user) loadEntry(data.user.id, queryDate || previousStr);
     });
-  }, []);
 
-  const getMedal = (pts) => {
-    if (pts === 8) return '🏆';
-    if (pts >= 6) return '🥈';
-    if (pts >= 4) return '🥉';
-    return '❌';
+    if (!queryDate || queryDate === previousStr) {
+      setEditable(true);
+    }
+  }, [queryDate]);
+
+  const loadEntry = async (userId, date) => {
+    const { data } = await supabase
+      .from('scores')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', date)
+      .single();
+
+    if (data) {
+      setExisting(data);
+      setTalktime(data.talktime);
+      setAht(data.aht);
+      setBusinesscase(data.businesscase);
+      setContactcode(data.contactcode);
+      setPoints(data.points);
+    }
   };
 
   const calculatePoints = () => {
@@ -50,20 +76,14 @@ export default function Battle() {
   };
 
   const saveEntry = async () => {
+    if (!editable) return alert('Nur der vorherige Werktag darf bearbeitet werden.');
+
     const pts = calculatePoints();
     setPoints(pts);
-    const today = format(new Date(), 'yyyy-MM-dd');
-
-    if (pts === 8) {
-      setShowAchievement(true);
-      const audio = new Audio('/achievement.mp3');
-      audio.play();
-      setTimeout(() => setShowAchievement(false), 3000);
-    }
 
     const { error } = await supabase.from('scores').upsert([{
       user_id: user.id,
-      date: today,
+      date: targetDate,
       talktime: parseFloat(talktime),
       aht: parseFloat(aht),
       businesscase: parseFloat(businesscase),
@@ -72,22 +92,11 @@ export default function Battle() {
       completed: true
     }]);
 
-    if (!error) {
-      loadEntries(user.id);
+    if (error) {
+      alert('Fehler beim Speichern.');
     } else {
-      console.error('Speicherfehler:', error.message);
+      alert('Eintrag gespeichert!');
     }
-  };
-
-  const loadEntries = async (userId) => {
-    const { data, error } = await supabase
-      .from('scores')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false })
-      .limit(30);
-
-    if (!error) setEntries(data);
   };
 
   return (
@@ -97,29 +106,10 @@ export default function Battle() {
       fontFamily: 'Press Start 2P, monospace',
       minHeight: '100vh',
       padding: '2rem',
-      textAlign: 'center',
-      position: 'relative'
+      textAlign: 'center'
     }}>
-      {showAchievement && (
-        <div style={{
-          position: 'absolute',
-          top: '40%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: '#222',
-          color: 'gold',
-          padding: '2rem',
-          border: '4px dashed gold',
-          borderRadius: '12px',
-          zIndex: 1000,
-          fontSize: '1.2rem',
-          animation: 'pop 0.5s ease'
-        }}>
-          🏆 Achievement Unlocked! <br />Perfect Day!
-        </div>
-      )}
-
-      <h1>🎯 Tages-Performance</h1>
+      <h1>📝 Tagesdaten: {targetDate}</h1>
+      {!editable && <p style={{ color: 'orange', fontSize: '0.7rem' }}>🔒 Nur der vorherige Werktag darf bearbeitet werden</p>}
 
       <form onSubmit={(e) => { e.preventDefault(); saveEntry(); }} style={{
         display: 'flex',
@@ -128,64 +118,28 @@ export default function Battle() {
         gap: '1rem',
         marginTop: '2rem'
       }}>
-        <input type="number" step="0.01" placeholder="📞 Talktime (s)" value={talktime} onChange={(e) => setTalktime(e.target.value)} required />
-        <input type="number" step="0.01" placeholder="🕒 AHT (s)" value={aht} onChange={(e) => setAht(e.target.value)} required />
-        <input type="number" step="0.01" placeholder="📊 Geschäftsfallquote (%)" value={businesscase} onChange={(e) => setBusinesscase(e.target.value)} required />
-        <input type="number" step="0.01" placeholder="✅ Contact Code (%)" value={contactcode} onChange={(e) => setContactcode(e.target.value)} required />
-        <button type="submit" style={{
-          padding: '0.5rem 1rem',
-          marginTop: '1rem',
-          backgroundColor: '#00ffff',
-          color: '#111',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer'
-        }}>
-          Speichern & Punkte berechnen
-        </button>
+        <input type="number" step="0.01" placeholder="📞 Talktime (s)" value={talktime} onChange={(e) => setTalktime(e.target.value)} disabled={!editable} required />
+        <input type="number" step="0.01" placeholder="🕒 AHT (s)" value={aht} onChange={(e) => setAht(e.target.value)} disabled={!editable} required />
+        <input type="number" step="0.01" placeholder="📊 Geschäftsfallquote (%)" value={businesscase} onChange={(e) => setBusinesscase(e.target.value)} disabled={!editable} required />
+        <input type="number" step="0.01" placeholder="✅ Contact Code (%)" value={contactcode} onChange={(e) => setContactcode(e.target.value)} disabled={!editable} required />
+        {editable && (
+          <button type="submit" style={{
+            padding: '0.5rem 1rem',
+            marginTop: '1rem',
+            backgroundColor: '#00ffff',
+            color: '#111',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}>
+            Speichern
+          </button>
+        )}
       </form>
 
       {points !== null && (
         <div style={{ marginTop: '2rem', fontSize: '1rem' }}>
-          <p>🏆 Heute erreicht: <strong>{points} Punkte</strong> {getMedal(points)}</p>
-        </div>
-      )}
-
-      {entries.length > 0 && (
-        <div style={{ marginTop: '3rem' }}>
-          <h2>📅 Letzte 30 Tage</h2>
-          <table style={{
-            width: '100%',
-            marginTop: '1rem',
-            fontSize: '0.6rem',
-            color: '#00ffff',
-            borderCollapse: 'collapse'
-          }}>
-            <thead>
-              <tr>
-                <th>Datum</th>
-                <th>Talktime</th>
-                <th>AHT</th>
-                <th>Quote</th>
-                <th>Code</th>
-                <th>Punkte</th>
-                <th>Medaillen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e, idx) => (
-                <tr key={idx}>
-                  <td>{e.date}</td>
-                  <td>{e.talktime}</td>
-                  <td>{e.aht}</td>
-                  <td>{e.businesscase}%</td>
-                  <td>{e.contactcode}%</td>
-                  <td>{e.points}</td>
-                  <td>{getMedal(e.points)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <p>🏆 Punkte: <strong>{points}</strong></p>
         </div>
       )}
     </div>
