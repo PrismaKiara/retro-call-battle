@@ -7,6 +7,7 @@ export default function Calendar() {
   const [user, setUser] = useState(null);
   const [days, setDays] = useState([]);
   const [entries, setEntries] = useState([]);
+  const [editDate, setEditDate] = useState('');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -15,6 +16,13 @@ export default function Calendar() {
         loadEntries(data.user.id);
       }
     });
+
+    // Erlaube nur Vortag (Werktag)
+    const today = new Date();
+    let prev = addDays(today, -1);
+    while (isWeekend(prev)) prev = addDays(prev, -1);
+    setEditDate(format(prev, 'yyyy-MM-dd'));
+
   }, []);
 
   const loadEntries = async (userId) => {
@@ -73,16 +81,20 @@ export default function Calendar() {
           }}>
             <strong>{day.label}</strong>
             <p style={{ margin: '0.5rem 0' }}>{getStatus(day.date)}</p>
-            {day.isToday && <a href="/battle"><button style={{
-              marginTop: '0.5rem',
-              padding: '0.4rem 0.8rem',
-              fontSize: '0.6rem',
-              backgroundColor: '#00ffff',
-              color: '#111',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}>Heute eintragen</button></a>}
+            <a href={day.date === editDate ? `/battle?date=${day.date}` : '#'} style={{ pointerEvents: day.date === editDate ? 'auto' : 'none' }}>
+              <button style={{
+                marginTop: '0.5rem',
+                padding: '0.4rem 0.8rem',
+                fontSize: '0.6rem',
+                backgroundColor: day.date === editDate ? '#00ffff' : '#555',
+                color: '#111',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: day.date === editDate ? 'pointer' : 'not-allowed'
+              }}>
+                {day.date === editDate ? 'Eintragen' : '🔒 Gesperrt'}
+              </button>
+            </a>
           </div>
         ))}
       </div>
