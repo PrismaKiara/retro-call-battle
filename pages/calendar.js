@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, subDays, isBefore, isAfter } from 'date-fns';
 import { useRouter } from 'next/router';
-import '../styles.css';
+
 
 const CalendarPage = () => {
   const router = useRouter();
