@@ -63,13 +63,13 @@ export default function Calendar() {
 
   return (
     <div style={{
-      backgroundColor: '#0f0f0f',
-      color: '#00ffff',
+      backgroundColor: '#f0f8ff',
+      color: '#003366',
       minHeight: '100vh',
       padding: '2rem',
       fontFamily: 'Press Start 2P, monospace'
     }}>
-      <h1 style={{ fontSize: '1rem', marginBottom: '2rem' }}>🗓️ Deine Battle-Tage (Mo–Fr)</h1>
+      <h1 style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>🗓️ Deine Battle-Tage (Mo–Fr)</h1>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
         {days.map((day, i) => (
           <div key={i} style={{
@@ -85,7 +85,7 @@ export default function Calendar() {
               <button style={{
                 marginTop: '0.5rem',
                 padding: '0.4rem 0.8rem',
-                fontSize: '0.6rem',
+                fontSize: '0.8rem',
                 backgroundColor: day.date === editDate ? '#00ffff' : '#555',
                 color: '#111',
                 border: 'none',
