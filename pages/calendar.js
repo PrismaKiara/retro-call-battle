@@ -1,46 +1,37 @@
 
-import React, { useState, useEffect } from 'react';
-import { format, addDays, subDays, isBefore, isAfter } from 'date-fns';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { format, addDays } from 'date-fns';
 
+export default function CalendarPage() {
+  const [days, setDays] = useState([]);
 
-const CalendarPage = () => {
-  const router = useRouter();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const startDate = new Date();
-  const endDate = addDays(startDate, 29);
-
-  const handleNextDay = () => {
-    const nextDay = addDays(currentDate, 1);
-    if (!isAfter(nextDay, endDate)) {
-      setCurrentDate(nextDay);
+  useEffect(() => {
+    const startDate = new Date();
+    const tempDays = [];
+    for (let i = 0; i < 30; i++) {
+      const current = addDays(startDate, i);
+      if (current.getDay() !== 0 && current.getDay() !== 6) {
+        tempDays.push(current);
+      }
     }
-  };
-
-  const handlePreviousDay = () => {
-    const prevDay = subDays(currentDate, 1);
-    if (!isBefore(prevDay, startDate)) {
-      setCurrentDate(prevDay);
-    }
-  };
-
-  const handleGoBack = () => {
-    router.push('/agent');
-  };
+    setDays(tempDays);
+  }, []);
 
   return (
-    <div className="retro-container">
-      <h1 className="retro-title">📅 Retro Tagesübersicht</h1>
-      <div className="retro-box">
-        <p>📆 Aktueller Tag: <strong>{format(currentDate, 'dd.MM.yyyy')}</strong></p>
-        <div className="button-row">
-          <button className="retro-button" onClick={handlePreviousDay}>⬅️ Zurück</button>
-          <button className="retro-button" onClick={handleNextDay}>Weiter ➡️</button>
-        </div>
-        <button className="retro-button back-button" onClick={handleGoBack}>🔙 Zur Übersicht</button>
-      </div>
+    <div style={{ fontFamily: 'monospace', background: '#1a1a2e', color: '#00ffff', minHeight: '100vh', padding: '2rem' }}>
+      <h1 style={{ color: '#ff00ff' }}>🗓️ Retro Battle Kalender</h1>
+      <ul>
+        {days.map((day, index) => (
+          <li key={index}>
+            <Link href={`/day?date=${format(day, 'yyyy-MM-dd')}`}>
+              <button style={{ margin: '0.5rem', padding: '0.5rem 1rem', background: '#00ffff', color: '#1a1a2e', border: 'none', borderRadius: '5px' }}>
+                {format(day, 'dd.MM.yyyy')}
+              </button>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
-
-export default CalendarPage;
+}
