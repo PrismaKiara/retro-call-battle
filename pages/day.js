@@ -1,7 +1,6 @@
 
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import Link from 'next/link';
 
 export default function DayPage() {
   const router = useRouter();
@@ -30,6 +29,7 @@ export default function DayPage() {
     </div>
   );
 }
+import Link from 'next/link';
 <Link href="/calendar">
   <button style={{ marginTop: '1rem', backgroundColor: '#ff00ff', color: '#fff', padding: '0.5rem 1rem', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
     🔙 Zurück zum Kalender
