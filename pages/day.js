@@ -37,23 +37,7 @@ export default function DayPage() {
       fontFamily: "Courier New, monospace",
       padding: "2rem",
       height: "100vh"
-    }}>
-      <h1 style={{ color: "#ff00ff" }}>🎮 Tagesansicht für {date}</h1>
-      <p>Hier kannst du deine heutigen Werte einsehen oder bearbeiten.</p>
-      <button
-        style={{
-          backgroundColor: "#ff00ff",
-          color: "white",
-          border: "none",
-          padding: "0.5rem 1rem",
-          fontSize: "1rem",
-          cursor: "pointer",
-          marginTop: "1rem"
-        }}
-        onClick={() => router.push("/calendar")}
-      >
-        ⬅ Zurück zum Kalender
-      </button>                                                                            
+    }}>                                                  
     </div>
   );
 }
