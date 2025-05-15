@@ -15,11 +15,7 @@ export default function DayPage() {
     e.preventDefault();
     console.log('Daten gesendet für', date, inputs);
   };
- useEffect(() => {
-    const today = new Date();
-    const formatted = today.toLocaleDateString("de-DE");
-    setDate(formatted);
-  }, []);
+ 
 
   return (
     <div style={{ fontFamily: 'monospace', background: '#1a1a2e', color: '#00ffff', minHeight: '100vh', padding: '2rem' }}>
