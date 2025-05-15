@@ -5,6 +5,7 @@ import Link from 'next/link';
 export default function DayPage() {
   const router = useRouter();
   const { date } = router.query;
+
   const [inputs, setInputs] = useState({
     talktime: '',
     aht: '',
@@ -18,26 +19,30 @@ export default function DayPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Gespeichert:', { date, ...inputs });
-    alert('Werte gespeichert!');
+    alert(`Werte für ${date} gespeichert!`);
+    // Hier kannst du die Werte an Supabase oder eine API senden
   };
 
   return (
     <div style={{
-      fontFamily: 'monospace',
-      backgroundColor: '#121225',
+      backgroundColor: '#191929',
       color: '#00ffff',
+      fontFamily: 'monospace',
       minHeight: '100vh',
       padding: '2rem'
     }}>
-      <h1 style={{ color: '#ff00ff' }}>📅 Werte für {date || '...Lade...'}</h1>
-      <form onSubmit={handleSubmit} style={{ maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <label>Talktime (Sekunden): <input name="talktime" type="number" value={inputs.talktime} onChange={handleChange} /></label>
-        <label>AHT (Sekunden): <input name="aht" type="number" value={inputs.aht} onChange={handleChange} /></label>
-        <label>Geschäftsfallquote (%): <input name="caseQuote" type="number" value={inputs.caseQuote} onChange={handleChange} /></label>
-        <label>Contact Code (%): <input name="contactCode" type="number" value={inputs.contactCode} onChange={handleChange} /></label>
+      <h1 style={{ color: '#ff00ff' }}>🎮 Tagesansicht für {new Date(date).toLocaleDateString('de-DE')}</h1>
+      <p>Hier kannst du deine heutigen Werte einsehen oder bearbeiten.</p>
+
+      <form onSubmit={handleSubmit} style={{ maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+        <label>Talktime (Sek.): <input type="number" name="talktime" value={inputs.talktime} onChange={handleChange} /></label>
+        <label>AHT (Sek.): <input type="number" name="aht" value={inputs.aht} onChange={handleChange} /></label>
+        <label>Geschäftsfallquote (%): <input type="number" name="caseQuote" value={inputs.caseQuote} onChange={handleChange} /></label>
+        <label>Contact Code (%): <input type="number" name="contactCode" value={inputs.contactCode} onChange={handleChange} /></label>
+
         <button type="submit" style={{ backgroundColor: '#ff00ff', color: '#fff', padding: '0.5rem', border: 'none' }}>💾 Speichern</button>
       </form>
+
       <Link href="/calendar">
         <button style={{
           marginTop: '2rem',
@@ -48,7 +53,7 @@ export default function DayPage() {
           borderRadius: '6px',
           cursor: 'pointer'
         }}>
-          🔙 Zurück zum Kalender
+          ⬅️ Zurück zum Kalender
         </button>
       </Link>
     </div>
