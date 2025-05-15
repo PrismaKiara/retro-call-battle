@@ -1,4 +1,3 @@
-
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import Link from 'next/link';
@@ -31,7 +30,7 @@ export default function DayPage() {
       minHeight: '100vh',
       padding: '2rem'
     }}>
-      <h1 style={{ color: '#ff00ff' }}>📅 Werte für {date}</h1>
+      <h1 style={{ color: '#ff00ff' }}>📅 Werte für {date || '...Lade...'}</h1>
       <form onSubmit={handleSubmit} style={{ maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <label>Talktime (Sekunden): <input name="talktime" type="number" value={inputs.talktime} onChange={handleChange} /></label>
         <label>AHT (Sekunden): <input name="aht" type="number" value={inputs.aht} onChange={handleChange} /></label>
