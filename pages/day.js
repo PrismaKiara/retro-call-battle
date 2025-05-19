@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 export default function DayView() {
   const router = useRouter();
-  const { date } = router.query;
+  const { date: rawDate } = router.query;
+  const date = rawDate || new Date(Date.now() - 86400000).toISOString().split('T')[0]; // Vortag als Default
 
   const [formData, setFormData] = useState({
     talktime: '',
