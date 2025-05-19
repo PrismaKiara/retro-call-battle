@@ -18,19 +18,15 @@ export default function DayView() {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    if (date) {
-      loadData();
-    }
+    if (date) loadData();
   }, [date]);
 
   const loadData = async () => {
-    const user = supabase.auth.getUser();
-    const { data: session } = await supabase.auth.getSession();
-    const email = session?.session?.user?.email;
-
+    const session = await supabase.auth.getSession();
+    const email = session?.data?.session?.user?.email;
     if (!email) return;
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('entries')
       .select('*')
       .eq('email', email)
@@ -54,46 +50,30 @@ export default function DayView() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const session = await supabase.auth.getSession();
+    const email = session?.data?.session?.user?.email;
+    if (!email) return;
 
-    const { data: session } = await supabase.auth.getSession();
-    const email = session?.session?.user?.email;
-
-    const { error } = await supabase
+    await supabase
       .from('entries')
-      .upsert({
-        email,
-        date,
-        ...formData,
-      });
+      .upsert({ email, date, ...formData });
 
-    if (!error) {
-      setSuccessMessage('Erfolgreich gespeichert!');
-    }
-
+    setSuccessMessage('✅ Werte gespeichert!');
     setLoading(false);
   };
 
-  const formatDate = (input) => {
-    const d = new Date(input);
-    return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
-  };
-
   return (
-    <div className="min-h-screen bg-[#1a1a2e] text-white p-6 font-mono">
-      <h1 className="text-3xl text-pink-500 font-bold mb-4 flex items-center gap-2">
-        🎮 Tagesansicht für {date && formatDate(date)}
+    <div className="min-h-screen bg-[#121225] text-cyan-300 font-mono p-6">
+      <h1 className="text-3xl font-bold text-pink-500 mb-4">
+        🎮 Eingabe für den {date ? new Date(date).toLocaleDateString('de-DE') : '...'}
       </h1>
-
-      <p className="text-cyan-300 mb-6">
-        Hier kannst du deine heutigen Werte einsehen oder bearbeiten.
-      </p>
 
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
         <div>
-          <label className="block text-cyan-300">Talktime (sec):</label>
+          <label className="block">Talktime (Sekunden)</label>
           <input
-            name="talktime"
             type="number"
+            name="talktime"
             value={formData.talktime}
             onChange={handleChange}
             className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
@@ -101,10 +81,10 @@ export default function DayView() {
         </div>
 
         <div>
-          <label className="block text-cyan-300">AHT (sec):</label>
+          <label className="block">AHT (Sekunden)</label>
           <input
-            name="aht"
             type="number"
+            name="aht"
             value={formData.aht}
             onChange={handleChange}
             className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
@@ -112,10 +92,10 @@ export default function DayView() {
         </div>
 
         <div>
-          <label className="block text-cyan-300">Geschäftsfallquote (%):</label>
+          <label className="block">Geschäftsfallquote (%)</label>
           <input
-            name="businesscase"
             type="number"
+            name="businesscase"
             value={formData.businesscase}
             onChange={handleChange}
             className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
@@ -123,10 +103,10 @@ export default function DayView() {
         </div>
 
         <div>
-          <label className="block text-cyan-300">Contact Code (%):</label>
+          <label className="block">Contact Code (%)</label>
           <input
-            name="contactcode"
             type="number"
+            name="contactcode"
             value={formData.contactcode}
             onChange={handleChange}
             className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
@@ -138,7 +118,7 @@ export default function DayView() {
           disabled={loading}
           className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded"
         >
-          {loading ? 'Speichern...' : 'Speichern'}
+          {loading ? 'Speichern...' : '💾 Speichern'}
         </button>
 
         {successMessage && (
