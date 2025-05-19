@@ -63,74 +63,104 @@ export default function DayView() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121225] text-cyan-300 font-mono p-6">
-      <h1 className="text-3xl font-bold text-pink-500 mb-4">
-        🎮 Eingabe für den {date ? new Date(date).toLocaleDateString('de-DE') : '...'}
-      </h1>
+    <div className="day-container">
+      <style jsx>{`
+        .day-container {
+          background-color: #121225;
+          color: #00ffff;
+          min-height: 100vh;
+          padding: 2rem;
+          font-family: 'Courier New', monospace;
+        }
 
-      <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-        <div>
-          <label className="block">Talktime (Sekunden)</label>
-          <input
-            type="number"
-            name="talktime"
-            value={formData.talktime}
-            onChange={handleChange}
-            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
-          />
-        </div>
+        h1 {
+          color: #ff00cc;
+          font-size: 2rem;
+        }
 
-        <div>
-          <label className="block">AHT (Sekunden)</label>
-          <input
-            type="number"
-            name="aht"
-            value={formData.aht}
-            onChange={handleChange}
-            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
-          />
-        </div>
+        label {
+          display: block;
+          margin-top: 1rem;
+          margin-bottom: 0.25rem;
+        }
 
-        <div>
-          <label className="block">Geschäftsfallquote (%)</label>
-          <input
-            type="number"
-            name="businesscase"
-            value={formData.businesscase}
-            onChange={handleChange}
-            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
-          />
-        </div>
+        input {
+          width: 100%;
+          padding: 0.5rem;
+          background-color: black;
+          color: #ff00cc;
+          border: 1px solid #00ffff;
+          border-radius: 5px;
+        }
 
-        <div>
-          <label className="block">Contact Code (%)</label>
-          <input
-            type="number"
-            name="contactcode"
-            value={formData.contactcode}
-            onChange={handleChange}
-            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
-          />
-        </div>
+        button {
+          margin-top: 1rem;
+          background-color: #ff00cc;
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          cursor: pointer;
+          border-radius: 5px;
+        }
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded"
-        >
-          {loading ? 'Speichern...' : '💾 Speichern'}
+        button:hover {
+          background-color: #e600a1;
+        }
+
+        .back-link {
+          display: inline-block;
+          margin-top: 2rem;
+          color: #00ffff;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+      `}</style>
+
+      <h1>🎮 Eingabe für den {date ? new Date(date).toLocaleDateString('de-DE') : '...'}</h1>
+
+      <form onSubmit={handleSubmit}>
+        <label>Talktime (Sekunden)</label>
+        <input
+          type="number"
+          name="talktime"
+          value={formData.talktime}
+          onChange={handleChange}
+        />
+
+        <label>AHT (Sekunden)</label>
+        <input
+          type="number"
+          name="aht"
+          value={formData.aht}
+          onChange={handleChange}
+        />
+
+        <label>Geschäftsfallquote (%)</label>
+        <input
+          type="number"
+          name="businesscase"
+          value={formData.businesscase}
+          onChange={handleChange}
+        />
+
+        <label>Contact Code (%)</label>
+        <input
+          type="number"
+          name="contactcode"
+          value={formData.contactcode}
+          onChange={handleChange}
+        />
+
+        <button type="submit" disabled={loading}>
+          💾 {loading ? 'Speichern...' : 'Speichern'}
         </button>
-
-        {successMessage && (
-          <p className="text-green-400 mt-2">{successMessage}</p>
-        )}
       </form>
 
-      <div className="mt-6">
+      {successMessage && <p>{successMessage}</p>}
+
+      <div>
         <Link href="/calendar">
-          <span className="inline-block mt-4 text-cyan-300 hover:underline cursor-pointer">
-            ⬅ Zurück zum Kalender
-          </span>
+          <span className="back-link">⬅ Zurück zum Kalender</span>
         </Link>
       </div>
     </div>
