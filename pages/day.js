@@ -1,61 +1,158 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
 
-export default function DayPage() {
+export default function DayView() {
   const router = useRouter();
   const { date } = router.query;
 
-  const [inputs, setInputs] = useState({
+  const [formData, setFormData] = useState({
     talktime: '',
     aht: '',
-    caseQuote: '',
-    contactCode: '',
+    businesscase: '',
+    contactcode: '',
   });
 
-  const handleChange = (e) => {
-    setInputs({ ...inputs, [e.target.name]: e.target.value });
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    if (date) {
+      loadData();
+    }
+  }, [date]);
+
+  const loadData = async () => {
+    const user = supabase.auth.getUser();
+    const { data: session } = await supabase.auth.getSession();
+    const email = session?.session?.user?.email;
+
+    if (!email) return;
+
+    const { data, error } = await supabase
+      .from('entries')
+      .select('*')
+      .eq('email', email)
+      .eq('date', date)
+      .single();
+
+    if (data) {
+      setFormData({
+        talktime: data.talktime || '',
+        aht: data.aht || '',
+        businesscase: data.businesscase || '',
+        contactcode: data.contactcode || '',
+      });
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Werte für ${date} gespeichert!`);
-    // Hier kannst du die Werte an Supabase oder eine API senden
+    setLoading(true);
+
+    const { data: session } = await supabase.auth.getSession();
+    const email = session?.session?.user?.email;
+
+    const { error } = await supabase
+      .from('entries')
+      .upsert({
+        email,
+        date,
+        ...formData,
+      });
+
+    if (!error) {
+      setSuccessMessage('Erfolgreich gespeichert!');
+    }
+
+    setLoading(false);
+  };
+
+  const formatDate = (input) => {
+    const d = new Date(input);
+    return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
   };
 
   return (
-    <div style={{
-      backgroundColor: '#191929',
-      color: '#00ffff',
-      fontFamily: 'monospace',
-      minHeight: '100vh',
-      padding: '2rem'
-    }}>
-      <h1 style={{ color: '#ff00ff' }}>🎮 Tagesansicht für {new Date(date).toLocaleDateString('de-DE')}</h1>
-      <p>Hier kannst du deine heutigen Werte einsehen oder bearbeiten.</p>
+    <div className="min-h-screen bg-[#1a1a2e] text-white p-6 font-mono">
+      <h1 className="text-3xl text-pink-500 font-bold mb-4 flex items-center gap-2">
+        🎮 Tagesansicht für {date && formatDate(date)}
+      </h1>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
-        <label>Talktime (Sek.): <input type="number" name="talktime" value={inputs.talktime} onChange={handleChange} /></label>
-        <label>AHT (Sek.): <input type="number" name="aht" value={inputs.aht} onChange={handleChange} /></label>
-        <label>Geschäftsfallquote (%): <input type="number" name="caseQuote" value={inputs.caseQuote} onChange={handleChange} /></label>
-        <label>Contact Code (%): <input type="number" name="contactCode" value={inputs.contactCode} onChange={handleChange} /></label>
+      <p className="text-cyan-300 mb-6">
+        Hier kannst du deine heutigen Werte einsehen oder bearbeiten.
+      </p>
 
-        <button type="submit" style={{ backgroundColor: '#ff00ff', color: '#fff', padding: '0.5rem', border: 'none' }}>💾 Speichern</button>
+      <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+        <div>
+          <label className="block text-cyan-300">Talktime (sec):</label>
+          <input
+            name="talktime"
+            type="number"
+            value={formData.talktime}
+            onChange={handleChange}
+            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-cyan-300">AHT (sec):</label>
+          <input
+            name="aht"
+            type="number"
+            value={formData.aht}
+            onChange={handleChange}
+            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-cyan-300">Geschäftsfallquote (%):</label>
+          <input
+            name="businesscase"
+            type="number"
+            value={formData.businesscase}
+            onChange={handleChange}
+            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-cyan-300">Contact Code (%):</label>
+          <input
+            name="contactcode"
+            type="number"
+            value={formData.contactcode}
+            onChange={handleChange}
+            className="w-full p-2 bg-black text-pink-300 border border-cyan-500 rounded"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded"
+        >
+          {loading ? 'Speichern...' : 'Speichern'}
+        </button>
+
+        {successMessage && (
+          <p className="text-green-400 mt-2">{successMessage}</p>
+        )}
       </form>
 
-      <Link href="/calendar">
-        <button style={{
-          marginTop: '2rem',
-          backgroundColor: '#00ffff',
-          color: '#000',
-          padding: '0.5rem 1rem',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer'
-        }}>
-          ⬅️ Zurück zum Kalender
-        </button>
-      </Link>
+      <div className="mt-6">
+        <Link href="/calendar">
+          <span className="inline-block mt-4 text-cyan-300 hover:underline cursor-pointer">
+            ⬅ Zurück zum Kalender
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }
