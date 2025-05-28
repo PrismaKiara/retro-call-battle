@@ -1,24 +1,56 @@
-
 .container {
-  background-color: #2d2d2d;
+  padding: 2rem;
+  background-color: #1f1f2e;
   color: #f0f0f0;
-  padding: 20px;
-  font-family: "Courier New", Courier, monospace;
-  border-radius: 8px;
-  max-width: 600px;
-  margin: 0 auto;
+  min-height: 100vh;
+  font-family: 'Courier New', monospace;
+}
+
+.header {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #ff66c4;
+}
+
+.inputGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
 .input {
-  margin-left: 10px;
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #292942;
+  color: #ffffff;
   margin-bottom: 10px;
 }
 
-button {
-  background-color: #ff69b4;
+.button {
+  padding: 0.75rem 1.5rem;
+  background-color: #00ffff;
   border: none;
-  padding: 10px;
-  color: white;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  font-weight: bold;
+  color: #000;
+  margin-top: 1rem;
+}
+
+.button:hover {
+  background-color: #66ffcc;
+}
+
+.returnLink {
+  display: inline-block;
+  margin-top: 2rem;
+  color: #ff66c4;
+  text-decoration: underline;
+  cursor: pointer;
 }
