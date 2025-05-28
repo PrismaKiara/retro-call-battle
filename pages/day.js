@@ -1,169 +1,62 @@
-import { useEffect, useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '../lib/supabaseClient';
 import Link from 'next/link';
+import './styles.css';
 
-export default function DayView() {
+const Day = () => {
   const router = useRouter();
-  const { date: rawDate } = router.query;
-  const date = rawDate || new Date(Date.now() - 86400000).toISOString().split('T')[0]; // Vortag als Default
-
   const [formData, setFormData] = useState({
     talktime: '',
     aht: '',
-    businesscase: '',
-    contactcode: '',
+    caseRate: '',
+    contactCode: ''
   });
-
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const [date, setDate] = useState('');
 
   useEffect(() => {
-    if (date) loadData();
-  }, [date]);
-
-  const loadData = async () => {
-    const session = await supabase.auth.getSession();
-    const email = session?.data?.session?.user?.email;
-    if (!email) return;
-
-    const { data } = await supabase
-      .from('entries')
-      .select('*')
-      .eq('email', email)
-      .eq('date', date)
-      .single();
-
-    if (data) {
-      setFormData({
-        talktime: data.talktime || '',
-        aht: data.aht || '',
-        businesscase: data.businesscase || '',
-        contactcode: data.contactcode || '',
-      });
-    }
-  };
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const isoDate = yesterday.toISOString().split('T')[0];
+    setDate(isoDate);
+  }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const session = await supabase.auth.getSession();
-    const email = session?.data?.session?.user?.email;
-    if (!email) return;
-
-    await supabase
-      .from('entries')
-      .upsert({ email, date, ...formData });
-
-    setSuccessMessage('✅ Werte gespeichert!');
-    setLoading(false);
+    const { data, error } = await supabase.from('agent_entries').upsert({
+      date,
+      ...formData
+    });
+    if (error) {
+      alert('Fehler beim Speichern.');
+    } else {
+      alert('Erfolgreich gespeichert!');
+    }
   };
 
   return (
-    <div className="day-container">
-      <style jsx>{`
-        .day-container {
-          background-color: #121225;
-          color: #00ffff;
-          min-height: 100vh;
-          padding: 2rem;
-          font-family: 'Courier New', monospace;
-        }
-
-        h1 {
-          color: #ff00cc;
-          font-size: 2rem;
-        }
-
-        label {
-          display: block;
-          margin-top: 1rem;
-          margin-bottom: 0.25rem;
-        }
-
-        input {
-          width: 100%;
-          padding: 0.5rem;
-          background-color: black;
-          color: #ff00cc;
-          border: 1px solid #00ffff;
-          border-radius: 5px;
-        }
-
-        button {
-          margin-top: 1rem;
-          background-color: #ff00cc;
-          color: white;
-          padding: 0.5rem 1rem;
-          border: none;
-          cursor: pointer;
-          border-radius: 5px;
-        }
-
-        button:hover {
-          background-color: #e600a1;
-        }
-
-        .back-link {
-          display: inline-block;
-          margin-top: 2rem;
-          color: #00ffff;
-          text-decoration: underline;
-          cursor: pointer;
-        }
-      `}</style>
-
-      <h1>🎮 Eingabe für den {date ? new Date(date).toLocaleDateString('de-DE') : '...'}</h1>
-
+    <div className="retro-container">
+      <h1 className="retro-title">🎮 Eingabe für den {new Date(date).toLocaleDateString()}</h1>
       <form onSubmit={handleSubmit}>
         <label>Talktime (Sekunden)</label>
-        <input
-          type="number"
-          name="talktime"
-          value={formData.talktime}
-          onChange={handleChange}
-        />
-
+        <input type="number" name="talktime" value={formData.talktime} onChange={handleChange} />
         <label>AHT (Sekunden)</label>
-        <input
-          type="number"
-          name="aht"
-          value={formData.aht}
-          onChange={handleChange}
-        />
-
+        <input type="number" name="aht" value={formData.aht} onChange={handleChange} />
         <label>Geschäftsfallquote (%)</label>
-        <input
-          type="number"
-          name="businesscase"
-          value={formData.businesscase}
-          onChange={handleChange}
-        />
-
+        <input type="number" name="caseRate" value={formData.caseRate} onChange={handleChange} />
         <label>Contact Code (%)</label>
-        <input
-          type="number"
-          name="contactcode"
-          value={formData.contactcode}
-          onChange={handleChange}
-        />
-
-        <button type="submit" disabled={loading}>
-          💾 {loading ? 'Speichern...' : 'Speichern'}
-        </button>
+        <input type="number" name="contactCode" value={formData.contactCode} onChange={handleChange} />
+        <button type="submit" className="retro-button">💾 Speichern</button>
       </form>
-
-      {successMessage && <p>{successMessage}</p>}
-
-      <div>
-        <Link href="/calendar">
-          <span className="back-link">⬅ Zurück zum Kalender</span>
-        </Link>
-      </div>
+      <Link href="/calendar"><button className="retro-button">🔙 Zurück zum Kalender</button></Link>
     </div>
   );
-}
+};
+
+export default Day;
