@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import styles from "../styles/Day.module.css";
+import styles from "retro-call-battle/styles/Day.module.css";
 
 export default function Day() {
   const router = useRouter();
