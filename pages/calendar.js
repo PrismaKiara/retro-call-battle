@@ -13,7 +13,7 @@ export default function Calendar() {
 
   // Zeitraum: Letzte 30 Tage vor heute
   const startDate = new Date();
-  startDate.setDate(today.getDate() + 30);
+  startDate.setDate(today.getDate() -1);
 
   const days = [];
   for (let i = 0; i < 30; i++) {
